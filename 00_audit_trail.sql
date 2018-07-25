@@ -22,15 +22,23 @@ CREATE OR REPLACE FUNCTION _at_save_historical_values()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$
-begin
+declare 
+	data_to_save text;
+begin	
+	
     if (TG_OP = 'DELETE') then
-    	execute 'insert into ' || TG_TABLE_SCHEMA || '._at_historical_values(table_name, tstamp, tx_id, "type", "data")
-            values(''' || TG_TABLE_NAME || ''', now(), txid_current(), ''' || TG_OP || '''::' || TG_TABLE_SCHEMA || '._at_type,''' || to_jsonb(OLD) || ''')';
+    	data_to_save := to_json(OLD);
     else
-        execute 'insert into ' || TG_TABLE_SCHEMA || '._at_historical_values(table_name, tstamp, tx_id, "type", "data")
-            values(''' || TG_TABLE_NAME || ''', now(), txid_current(), ''' || TG_OP || '''::' || TG_TABLE_SCHEMA || '._at_type,''' || to_jsonb(NEW) || ''')';
+        data_to_save := to_json(NEW);
     end if;
+   
+    data_to_save = replace(data_to_save,'''','''''');
+	
+	execute 'insert into ' || TG_TABLE_SCHEMA || '._at_historical_values(table_name, tstamp, tx_id, "type", "data") 
+		values(''' || TG_TABLE_NAME || ''', now(), txid_current(), ''' || TG_OP || '''::' || TG_TABLE_SCHEMA || '._at_type,''' || data_to_save || ''')';
+
     return NEW;
 end;
 $function$
 ;
+
