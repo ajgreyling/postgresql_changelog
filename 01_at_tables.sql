@@ -1,25 +1,12 @@
-drop trigger if exists _at_medicine on medicine;
-drop trigger if exists _at_contract on contract;
-drop trigger if exists _at_supplier on supplier;
-drop trigger if exists _at_contractlineitem on contractlineitem;
-drop trigger if exists _at_draftcontract on draftcontract;
+-- Replace <table_0n> with the actual table names. 
+drop trigger if exists _at_medicine on <table_01>;
 
-create trigger _at_medicine
-    after insert or update or delete on medicine
+create trigger _at_<table_01>
+    after insert or update or delete on <table_01>
     for each row execute procedure _at_save_historical_values();
 
-create trigger _at_contract
-    after insert or update or delete on contract
-    for each row execute procedure _at_save_historical_values();
+drop trigger if exists _at_contract on <table_02>;
 
-create trigger _at_supplier
-    after insert or update or delete on supplier
+create trigger _at_<table_02>
+    after insert or update or delete on <table_02>
     for each row execute procedure _at_save_historical_values();
-
-create trigger _at_contractlineitem
-    after insert or update or delete on contractlineitem
-    for each row execute procedure _at_save_historical_values();
-
-    create trigger _at_draftcontract
-        after insert or update or delete on draftcontract
-        for each row execute procedure _at_save_historical_values();
